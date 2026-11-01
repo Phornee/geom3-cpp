@@ -4,7 +4,7 @@
 
 namespace {
 Vector3 triangle_normal(const Vector3& ab, const Vector3& ac) {
-    const Vector3 cross = ab.Cross(ac);
+    const Vector3 cross = ab.cross(ac);
     if (cross.is_zero()) {
         throw std::invalid_argument("A triangle must have three non-collinear vertices");
     }
@@ -25,15 +25,15 @@ Triangle3::Triangle3(const Vector3& point_a, const Vector3& point_b, const Vecto
       plane(point_a, triangle_normal(point_b - point_a, point_c - point_a)),
       ab(point_b - point_a),
       ac(point_c - point_a),
-      d00(ab.Dot(ab)),
-      d01(ab.Dot(ac)),
-      d11(ac.Dot(ac)),
+      d00(ab.dot(ab)),
+      d01(ab.dot(ac)),
+      d11(ac.dot(ac)),
       denom(d00 * d11 - d01 * d01) {}
 
 Vector3 Triangle3::barycentric(const Vector3& point) const {
     const Vector3 ap = point - a;
-    const double d20 = ap.Dot(ab);
-    const double d21 = ap.Dot(ac);
+    const double d20 = ap.dot(ab);
+    const double d21 = ap.dot(ac);
     const double bar_b = (d11 * d20 - d01 * d21) / denom;
     const double bar_c = (d00 * d21 - d01 * d20) / denom;
     const double bar_a = 1.0 - bar_b - bar_c;

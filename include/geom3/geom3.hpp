@@ -5,3 +5,4 @@
 #include "plane.hpp"
 #include "sphere.hpp"
 #include "triangle3.hpp"
+#include "vector2.hpp"

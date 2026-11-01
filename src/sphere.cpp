@@ -9,8 +9,8 @@
 namespace {
 std::optional<std::pair<double, double>> roots(const Sphere& sphere, const Line3& line) {
     const Vector3 offset = line.a - sphere.c;
-    const double b = 2.0 * line.v.Dot(offset);
-    const double c = offset.magnitudeSquared() - sphere.r * sphere.r;
+    const double b = 2.0 * line.v.dot(offset);
+    const double c = offset.magnitude_squared() - sphere.r * sphere.r;
     const double discriminant = b * b - 4.0 * line.qa * c;
 
     if (discriminant < 0.0) {

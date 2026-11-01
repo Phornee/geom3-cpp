@@ -20,11 +20,11 @@ public:
     constexpr Vector3(double x_value = 0.0, double y_value = 0.0, double z_value = 0.0)
         : x(x_value), y(y_value), z(z_value) {}
 
-    constexpr double Dot(const Vector3& other) const {
+    constexpr double dot(const Vector3& other) const {
         return x * other.x + y * other.y + z * other.z;
     }
 
-    constexpr Vector3 Cross(const Vector3& other) const {
+    constexpr Vector3 cross(const Vector3& other) const {
         return {
             y * other.z - z * other.y,
             z * other.x - x * other.z,
@@ -32,12 +32,12 @@ public:
         };
     }
 
-    constexpr double magnitudeSquared() const {
-        return Dot(*this);
+    constexpr double magnitude_squared() const {
+        return dot(*this);
     }
 
     double magnitude() const {
-        return std::sqrt(magnitudeSquared());
+        return std::sqrt(magnitude_squared());
     }
 
     bool is_zero() const {
@@ -49,21 +49,21 @@ public:
         return length == 0.0 ? zero : *this / length;
     }
 
-    void Normalize() {
+    void normalize() {
         *this = normalized();
     }
 
-    Vector3 Project(const Vector3& other) const {
-        const double denominator = magnitudeSquared();
-        return denominator == 0.0 ? zero : *this * (Dot(other) / denominator);
+    Vector3 project(const Vector3& other) const {
+        const double denominator = magnitude_squared();
+        return denominator == 0.0 ? zero : *this * (dot(other) / denominator);
     }
 
-    Vector3 Reflect(const Vector3& normal) const {
+    Vector3 reflect(const Vector3& normal) const {
         const Vector3 unit_normal = normal.normalized();
-        return *this - 2.0 * Dot(unit_normal) * unit_normal;
+        return *this - 2.0 * dot(unit_normal) * unit_normal;
     }
 
-    double Distance(const Vector3& other) const {
+    double distance(const Vector3& other) const {
         return (other - *this).magnitude();
     }
 
@@ -95,7 +95,7 @@ public:
         return !(*this == other);
     }
 
-    static void SetZero(Vector3& other) {
+    static void set_zero(Vector3& other) {
         other = zero;
     }
 

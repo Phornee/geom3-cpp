@@ -10,6 +10,35 @@ bool approximately_equal(double left, double right, double tolerance = 1e-9) {
     return std::abs(left - right) <= tolerance;
 }
 
+void vector2_tests() {
+    const Vector2 a{3.0, 4.0};
+    const Vector2 b{1.0, 2.0};
+
+    assert(a.dot(b) == 11.0);
+    assert(a.cross(b) == 2.0);
+    assert(a.magnitude_squared() == 25.0);
+    assert(a.magnitude() == 5.0);
+    assert((a.normalized() == Vector2{0.6, 0.8}));
+    assert(a.distance(b) == std::sqrt(8.0));
+    assert((a.project(b) == Vector2{1.32, 1.76}));
+    assert((Vector2{1.0, -1.0}.reflect(Vector2::up) == Vector2{1.0, 1.0}));
+    assert(Vector2::zero.normalized() == Vector2::zero);
+    assert((Vector2::left == Vector2{-1.0, 0.0}));
+    assert((2.0 * Vector2{1.0, 3.0} == Vector2{2.0, 6.0}));
+    assert(((Vector2{1.0, 2.0} + Vector2{3.0, 4.0}) == Vector2{4.0, 6.0}));
+    assert(((Vector2{3.0, 4.0} - Vector2{1.0, 2.0}) == Vector2{2.0, 2.0}));
+    assert((Vector2{2.0, 4.0} / 2.0 == Vector2{1.0, 2.0}));
+    assert((Vector2{1.0, 2.0} != Vector2{2.0, 1.0}));
+
+    Vector2 normalized{3.0, 4.0};
+    normalized.normalize();
+    assert((normalized == Vector2{0.6, 0.8}));
+
+    Vector2 reset{1.0, 2.0};
+    Vector2::set_zero(reset);
+    assert(reset == Vector2::zero);
+}
+
 void line_tests() {
     const Vector3 a{0.0, 0.0, 0.0};
     const Vector3 b{0.0, 0.0, 10.0};
@@ -106,6 +135,7 @@ void triangle_tests() {
 }
 
 int main() {
+    vector2_tests();
     line_tests();
     sphere_tests();
     plane_tests();

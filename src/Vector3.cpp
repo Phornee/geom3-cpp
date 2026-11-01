@@ -1,4 +1,4 @@
-#include <geom3/Vector3.hpp>
+#include <geom3/vector3.hpp>
 
 const Vector3 Vector3::forward{0.0, 0.0, 1.0};
 const Vector3 Vector3::backward{0.0, 0.0, -1.0};
