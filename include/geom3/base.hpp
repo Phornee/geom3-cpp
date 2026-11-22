@@ -5,13 +5,15 @@
 #include <optional>
 #include <vector>
 
+const double epsilon = 1e-6;
+
 class Line3;
 
 class Shape {
 public:
-    virtual ~Shape() = default;
+    virtual                         ~Shape() = default;
 
-    virtual Vector3 normal(const Vector3& point) const = 0;
-    virtual std::vector<double> intersects(const Line3& line) const = 0;
-    virtual std::optional<double> closest_intersection(const Line3& line) const = 0;
+    virtual Vector3                 normal(const Vector3& point) const = 0;
+    virtual std::vector<double>     intersects(const Line3& line) const = 0;
+    virtual std::optional<double>   closest_intersection(const Line3& line) const = 0;
 };

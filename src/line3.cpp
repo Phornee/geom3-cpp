@@ -9,6 +9,10 @@ Line3::Line3(const Vector3& point_a, const Vector3& point_b)
     }
 }
 
+Vector3 Line3::direction() const {
+    return v.normalized();
+}
+
 Vector3 Line3::calc_point(double lambda) const {
     return a + v * lambda;
 }
