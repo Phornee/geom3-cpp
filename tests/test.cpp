@@ -39,6 +39,58 @@ void vector2_tests() {
     assert(reset == Vector2::zero);
 }
 
+void matrix4_tests() {
+    const Matrix4 identity = Matrix4::identity();
+    assert(identity[0][0] == 1.0);
+    assert(identity[1][1] == 1.0);
+    assert(identity[2][2] == 1.0);
+    assert(identity[3][3] == 1.0);
+    assert(identity[0][1] == 0.0);
+    assert(identity * identity == identity);
+
+    Matrix4 values;
+    values[0][3] = 2.0;
+    values[1][3] = 3.0;
+    values[2][3] = 4.0;
+    assert((identity * values) == values);
+    assert((values * identity) == values);
+
+    const Matrix4 translate = Matrix4::translation({2.0, 3.0, 4.0});
+    assert(translate[0][3] == 2.0);
+    assert(translate[1][3] == 3.0);
+    assert(translate[2][3] == 4.0);
+    assert(translate[3][3] == 1.0);
+    assert(translate.transform({1.0, 2.0, 3.0}) == Vector3{3.0, 5.0, 7.0});
+    assert((translate * Vector3{1.0, 2.0, 3.0}) == Vector3{3.0, 5.0, 7.0});
+
+    const Matrix4 scale = Matrix4::scaling({2.0, 3.0, 4.0});
+    assert(scale[0][0] == 2.0);
+    assert(scale[1][1] == 3.0);
+    assert(scale[2][2] == 4.0);
+    assert(scale[3][3] == 1.0);
+    assert(Matrix4::scaling(2.0)[0][0] == 2.0);
+    assert(Matrix4::scaling(2.0)[1][1] == 2.0);
+    assert(Matrix4::scaling(2.0)[2][2] == 2.0);
+
+    const double half_pi = std::acos(-1.0) / 2.0;
+    const Matrix4 rotate_z = Matrix4::rotation_z(half_pi);
+    assert(approximately_equal(rotate_z[0][0], 0.0));
+    assert(approximately_equal(rotate_z[0][1], -1.0));
+    assert(approximately_equal(rotate_z[1][0], 1.0));
+    assert(approximately_equal(rotate_z[1][1], 0.0));
+    assert(Matrix4::rotation_axis({0.0, 0.0, 1.0}, half_pi) == rotate_z);
+    assert(Matrix4::rotation_x(0.0) == identity);
+    assert(Matrix4::rotation_y(0.0) == identity);
+
+    bool rejected_zero_axis = false;
+    try {
+        Matrix4::rotation_axis(Vector3::zero, half_pi);
+    } catch (const std::invalid_argument&) {
+        rejected_zero_axis = true;
+    }
+    assert(rejected_zero_axis);
+}
+
 void line_tests() {
     const Vector3 a{0.0, 0.0, 0.0};
     const Vector3 b{0.0, 0.0, 10.0};
@@ -136,6 +188,7 @@ void triangle_tests() {
 
 int main() {
     vector2_tests();
+    matrix4_tests();
     line_tests();
     sphere_tests();
     plane_tests();
