@@ -42,9 +42,9 @@ endif
 
 # Debug builds keep symbols and disable optimizations; release builds optimize code.
 ifeq ($(CONFIG),debug)
-  CXXFLAGS := -std=c++20 -Wall -Wextra -O0 -g
+  CXXFLAGS := -std=c++20 -Wall -Wextra -O0 -g -gdwarf-4 -fno-omit-frame-pointer
 else
-  CXXFLAGS := -std=c++20 -Wall -Wextra -O2
+  CXXFLAGS := -std=c++20 -Wall -Wextra -O2 -g -gdwarf-4 -fno-omit-frame-pointer
 endif
 
 .PHONY: all clean test

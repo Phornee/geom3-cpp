@@ -177,6 +177,21 @@ public:
         return w == 0.0 ? Vector3{x, y, z} : Vector3{x / w, y / w, z / w};
     }
 
+    constexpr Vector3 transform_direction(const Vector3& direction) const
+    {
+        return {
+            values_[0][0] * direction.x +
+                values_[0][1] * direction.y +
+                values_[0][2] * direction.z,
+            values_[1][0] * direction.x +
+                values_[1][1] * direction.y +
+                values_[1][2] * direction.z,
+            values_[2][0] * direction.x +
+                values_[2][1] * direction.y +
+                values_[2][2] * direction.z
+        };
+    }
+
     constexpr Vector3 operator*(const Vector3& vector) const
     {
         return transform(vector);

@@ -60,7 +60,8 @@ void matrix4_tests() {
     assert(translate[1][3] == 3.0);
     assert(translate[2][3] == 4.0);
     assert(translate[3][3] == 1.0);
-    assert(translate.transform({1.0, 2.0, 3.0}) == Vector3{3.0, 5.0, 7.0});
+    assert((translate.transform_direction({1.0, 2.0, 3.0}) == Vector3{1.0, 2.0, 3.0}));
+    assert((translate.transform({1.0, 2.0, 3.0}) == Vector3{3.0, 5.0, 7.0}));
     assert((translate * Vector3{1.0, 2.0, 3.0}) == Vector3{3.0, 5.0, 7.0});
 
     const Matrix4 scale = Matrix4::scaling({2.0, 3.0, 4.0});
@@ -74,6 +75,10 @@ void matrix4_tests() {
 
     const double half_pi = std::acos(-1.0) / 2.0;
     const Matrix4 rotate_z = Matrix4::rotation_z(half_pi);
+    const Vector3 rotated_direction = rotate_z.transform_direction({1.0, 0.0, 0.0});
+    assert(approximately_equal(rotated_direction.x, 0.0));
+    assert(approximately_equal(rotated_direction.y, 1.0));
+    assert(approximately_equal(rotated_direction.z, 0.0));
     assert(approximately_equal(rotate_z[0][0], 0.0));
     assert(approximately_equal(rotate_z[0][1], -1.0));
     assert(approximately_equal(rotate_z[1][0], 1.0));
@@ -121,9 +126,18 @@ void sphere_tests() {
     const Line3 tangent_line{{0.0, 2.0, 10.0}, {0.0, 2.0, 0.0}};
     const Line3 outer_line{{0.0, 2.1, 10.0}, {0.0, 2.1, 0.0}};
 
-    assert(sphere.intersects(line_from_origin).size() == 2);
-    assert(approximately_equal(*sphere.closest_intersection(line_from_outside), 0.4));
-    assert(approximately_equal(*sphere.closest_intersection(line_from_origin), 0.2));
+    const auto sphere_hits = sphere.intersects(line_from_origin);
+    assert(sphere_hits.size() == 2);
+    for (const Hit& hit : sphere_hits) {
+        assert(hit.normal == sphere.normal(line_from_origin.calc_point(hit.lambda)));
+        assert(!hit.barycentric);
+    }
+    const auto outside_hit = sphere.closest_intersection(line_from_outside);
+    assert(outside_hit && approximately_equal(outside_hit->lambda, 0.4));
+    assert((outside_hit->normal == Vector3{0.0, 0.0, -1.0}));
+    assert(!outside_hit->barycentric);
+    const auto origin_hit = sphere.closest_intersection(line_from_origin);
+    assert(origin_hit && approximately_equal(origin_hit->lambda, 0.2));
     assert(sphere.intersects(tangent_line).size() == 1);
     assert(sphere.intersects(outer_line).empty());
     assert(!sphere.closest_intersection(line_from_beyond_sphere));
@@ -137,9 +151,15 @@ void plane_tests() {
 
     assert(plane.intersects(horizontal_line).empty());
     assert(!plane.closest_intersection(horizontal_line));
-    assert(approximately_equal(*plane.closest_intersection(tilted_line), 0.5));
+    const auto plane_hit = plane.closest_intersection(tilted_line);
+    assert(plane_hit && approximately_equal(plane_hit->lambda, 0.5));
+    assert(plane_hit->normal == plane.n);
+    assert(!plane_hit->barycentric);
     assert(!plane.closest_intersection(in_plane_line));
-    assert(plane.intersects(tilted_line).size() == 1);
+    const auto plane_hits = plane.intersects(tilted_line);
+    assert(plane_hits.size() == 1);
+    assert(plane_hits.front().normal == plane.n);
+    assert(!plane_hits.front().barycentric);
     assert(plane.intersects(in_plane_line).empty());
 
     bool rejected_zero_normal = false;
@@ -165,7 +185,11 @@ void triangle_tests() {
     const Line3 ray_inside{{10.0, 5.0, 5.0}, {0.0, 5.0, 5.0}};
     const auto intersections = triangle.intersects(ray_inside);
     assert(intersections.size() == 1);
-    assert(approximately_equal(*triangle.closest_intersection(ray_inside), 1.0));
+    assert(intersections.front().normal == triangle.normal(Vector3{0.0, 5.0, 5.0}));
+    assert((intersections.front().barycentric == Vector3{0.0, 0.5, 0.5}));
+    const auto triangle_hit = triangle.closest_intersection(ray_inside);
+    assert(triangle_hit && approximately_equal(triangle_hit->lambda, 1.0));
+    assert((triangle_hit->barycentric == Vector3{0.0, 0.5, 0.5}));
 
     const Vector3 outside_barycentric = triangle.barycentric({0.0, 8.0, 1.0});
     assert(approximately_equal(outside_barycentric.x, 0.1));

@@ -17,7 +17,7 @@ public:
     static const Vector3 down;
     static const Vector3 zero;
 
-    constexpr Vector3(double x_value = 0.0, double y_value = 0.0, double z_value = 0.0)
+    constexpr Vector3(double x_value, double y_value, double z_value)
         : x(x_value), y(y_value), z(z_value) {}
 
     constexpr double dot(const Vector3& other) const {

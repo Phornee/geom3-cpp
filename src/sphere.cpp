@@ -32,20 +32,23 @@ Vector3 Sphere::normal(const Vector3& point) const {
     return (point - c).normalized();
 }
 
-std::vector<double> Sphere::intersects(const Line3& line) const {
+std::vector<Hit> Sphere::intersects(const Line3& line) const {
     const auto solutions = roots(*this, line);
     if (!solutions) {
         return {};
     }
 
     const auto [first, second] = *solutions;
+    const auto make_hit = [this, &line](double lambda) {
+        return Hit{lambda, nullptr, normal(line.calc_point(lambda)), std::nullopt};
+    };
     if (first == second) {
-        return {first};
+        return {make_hit(first)};
     }
-    return {first, second};
+    return {make_hit(first), make_hit(second)};
 }
 
-std::optional<double> Sphere::closest_intersection(const Line3& line) const {
+std::optional<Hit> Sphere::closest_intersection(const Line3& line) const {
     const auto solutions = roots(*this, line);
     if (!solutions) {
         return std::nullopt;
@@ -54,16 +57,17 @@ std::optional<double> Sphere::closest_intersection(const Line3& line) const {
     const auto [first, second] = *solutions;
     const bool first_is_positive = first > 0.0;
     const bool second_is_positive = second > 0.0;
+    double lambda = 0.0;
     if (first_is_positive && second_is_positive) {
-        return std::min(first, second);
+        lambda = std::min(first, second);
+    } else if (first_is_positive) {
+        lambda = first;
+    } else if (second_is_positive) {
+        lambda = second;
+    } else {
+        return std::nullopt;
     }
-    if (first_is_positive) {
-        return first;
-    }
-    if (second_is_positive) {
-        return second;
-    }
-    return std::nullopt;
+    return Hit{lambda, nullptr, normal(line.calc_point(lambda))};
 }
 
 std::ostream& operator<<(std::ostream& stream, const Sphere& sphere) {

@@ -1,6 +1,7 @@
 #include <geom3/triangle3.hpp>
 
 #include <stdexcept>
+#include <utility>
 
 namespace {
 Vector3 triangle_normal(const Vector3& ab, const Vector3& ac) {
@@ -45,23 +46,33 @@ Vector3 Triangle3::normal(const Vector3& point) const {
     return plane.n;
 }
 
-std::vector<double> Triangle3::intersects(const Line3& line) const {
-    auto intersections = plane.intersects(line);
-    if (intersections.empty()) {
-        return intersections;
+std::vector<Hit> Triangle3::intersects(const Line3& line) const {
+    const std::vector<Hit> plane_hits = plane.intersects(line);
+    std::vector<Hit> hits;
+    hits.reserve(plane_hits.size());
+    for (Hit hit : plane_hits) {
+        const Vector3 point = line.calc_point(hit.lambda);
+        const Vector3 weights = barycentric(point);
+        if (is_inside(weights)) {
+            hit.normal = normal(point);
+            hit.barycentric = weights;
+            hits.push_back(std::move(hit));
+        }
     }
-
-    const Vector3 point = line.calc_point(intersections.front());
-    return is_inside(barycentric(point)) ? intersections : std::vector<double>{};
+    return hits;
 }
 
-std::optional<double> Triangle3::closest_intersection(const Line3& line) const {
+std::optional<Hit> Triangle3::closest_intersection(const Line3& line) const {
     const auto intersection = plane.closest_intersection(line);
     if (!intersection) {
         return std::nullopt;
     }
 
-    return is_inside(barycentric(line.calc_point(*intersection)))
-        ? intersection
-        : std::nullopt;
+    const Vector3 point = line.calc_point(intersection->lambda);
+    const Vector3 weights = barycentric(point);
+    if (!is_inside(weights)) {
+        return std::nullopt;
+    }
+
+    return Hit{intersection->lambda, nullptr, normal(point), weights};
 }

@@ -37,20 +37,22 @@ std::optional<Vector2> Plane::texture_coordinates(const Vector3& point, double s
     return Vector2{offset.dot(tangent_u_) * scale, offset.dot(tangent_v_) * scale};
 }
 
-std::vector<double> Plane::intersects(const Line3& line) const {
+std::vector<Hit> Plane::intersects(const Line3& line) const {
     const double denominator = n.dot(line.v);
     if (denominator == 0.0) {
         return {};
     }
-    return {(-n.dot(line.a) - d) / denominator};
+    const double lambda = (-n.dot(line.a) - d) / denominator;
+    return {Hit{lambda, nullptr, n}};
 }
 
-std::optional<double> Plane::closest_intersection(const Line3& line) const {
+std::optional<Hit> Plane::closest_intersection(const Line3& line) const {
     const double denominator = n.dot(line.v);
     if (denominator == 0.0) {
         return std::nullopt;
     }
-    return (-n.dot(line.a) - d) / denominator;
+    const double lambda = (-n.dot(line.a) - d) / denominator;
+    return Hit{lambda, nullptr, n};
 }
 
 std::ostream& operator<<(std::ostream& stream, const Plane& plane) {
